@@ -1,0 +1,96 @@
+h1 {
+    counter-reset: section;
+    text-align: center;
+}
+h2 {
+    counter-reset: subsection;
+}
+h2:before {
+    counter-increment: section;
+    content: counter(section) ". ";
+}
+h3:before {
+    counter-increment: subsection;
+    content: counter(section) "." counter(subsection) " ";
+}
+
+.centered {
+    text-align: center;
+}
+
+.abstract {
+    margin: auto;
+    width: 80%;
+}
+
+ul, ol, dl {
+    padding-left: 30px;
+}
+th {
+    text-align: center;
+}
+table {
+    border-spacing: 30px 5px;
+}
+table.bordered {
+    border-collapse:collapse;
+    margin: 5px;
+}
+table.bordered th {
+    padding: 5px 10px 5px 10px;
+}
+table.bordered td {
+    border: 1px solid black;
+    width: 50px;
+    text-align: center;
+}
+
+.figure {
+    float: right;
+    margin: 10px;
+}
+
+.exampleText {
+    float: right;
+    background: rgb(255, 255, 200);
+    color: rgb(50, 0, 50);
+    border: 1px solid black;
+    margin: 10px;
+}
+
+.exampleText pre {
+    padding: 0px;
+    margin: 10px;
+}
+
+.shrunk * {
+    margin: 0px;
+    padding: 0px;
+}
+
+.inlineIcon {
+    height:18px;
+}
+
+pre {
+    margin-left: 20px;
+}
+
+.footnotes {
+    counter-reset: footnote;
+    list-style: none;
+}
+
+.footnotes li {
+    counter-increment: footnote;
+    display: table-row;
+}
+
+.footnotes li::before {
+    content: "[" counter(footnote) "]";
+    display: table-cell;
+    padding-right: 5px;
+    text-align: right;
+}
+
+em { color: blue; font-style: normal; font-weight: bold }
