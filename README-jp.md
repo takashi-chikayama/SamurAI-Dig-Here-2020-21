@@ -6,21 +6,61 @@
 SamurAI Dig Here ゲームのルールは以下のファイルにあります.
 * 日本語版: [documents/rules-jp.html](documents/rules-jp.html)
 * 英語版: [documents/rules.html](documents/rules.html)
+### ゲーム管理システム
+ゲーム管理システムのマニュアルは以下のファイルにあります.
+* 英語版: [documents/manager.html](documents/manager.html)
+* 日本語版: [documents/manager-jp.html](documents/manager-jp.html)
 ### ウェブページ
 ゲームログを可視化するウェブページのマニュアルは以下のファイルにあります.
 The manuals for the game log visualizer web page are in the following files.
 * 英語版: [documents/help.html](documents/help.html)
 * 日本語版: Japanese version: [documents/help-jp.html](documents/help-jp.html)
 ### その他の文書
-ゲーム管理システムや戦術のヒントなどは準備中です.
+戦術のヒントなどは準備中です.
 
 ## はじめに
 ### 必要なもの
+* C++ 開発環境 (C++14 以上のコンパイラと標準ライブラリ)
+* ウェブブラウザ
 文書を読むため, ゲームのリプレイを見るため,
 そしてゲームの競技場の構成を編集するのにウェブブラウザが必要です.
 
-準備中のゲーム管理システムでは C++ 開発環境
-(C++14 以上のコンパイラと標準ライブラリ) を利用する予定です.
+### インストール
+
+トップレベルのディレクトリで以下を実行してください.
+```
+$ make all
+```
+これで以下のソフトウェアができます.
+* manager/manager
+   ゲーム管理システム
+* players/simplePlayer
+   単純な AI プレイヤの例
+* players/randomPlayer
+   ランダムなプレイをするプレイヤ
+* players/timeoutPlayer
+   ときどき停止してしまうプレイヤ
+
+## テスト
+
+### テストラン
+トップレベルのディレクトリで以下を実行してください.
+```
+$ make testrun
+```
+これで単純なプレイヤふたつの間でゲームを行い, 結果を [samples/testout.dighere](samples/testout.dighere) に書き出します.
+
+### 結果の可視化
+
+ウェブページ [webpage/dighere.html](webpage/dighere.html)
+をウェブブラウザで開いてください.
+![Image](icons/import.png "import button") をクリックすると,
+ファイル選択ダイアログが出るので,
+ゲームログ [samples/testout.dighere](samples/testout.dighere)
+を選んで読み込んでください.
+そしてプレイボタンを押せば記録したゲームの進行を可視化することができます.
+
+ページ右上のクエスチョンマークのアイコンのボタンを押せば, このウェブページの使い方のマニュアルを表示できます.
 
 ## 著者
 
@@ -29,6 +69,8 @@ The manuals for the game log visualizer web page are in the following files.
 ## ライセンス
 
 このソフトウェア MIT ライセンスに従って配布します.  詳しくは [LICENSE.md](LICENSE.md) をご覧ください.
+
+プロジェクトの一部 (picojson) は Cybozu Labs, Inc. と Kazuho Oku にライセンスされています.  詳しくは [manager/picojson.h](manager/picojson.h) をご覧ください.
 
 ## 謝辞
 

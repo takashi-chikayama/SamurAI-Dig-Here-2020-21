@@ -1,6 +1,3 @@
-// TODO
-//  - Samurai is energized after digging!
-
 let field;
 let background;
 let backgroundDirt;
@@ -178,7 +175,7 @@ class SamuraiState extends AgentState {
   }
   duplicate() {
     return new SamuraiState(this.attributes, this.at, this.direction,
-			    this.energy, 0);
+			    this.planned < 0 ? 1 : 0, 0);
   }
   setImage(x, y) {
     const teamColor = this.attributes.seq%2 == 0 ? "Red" : "Blue";
@@ -467,8 +464,9 @@ class GameState {
 	  return "Plan " + plan + " out of range";
         if (targetPos === null)
 	  return "Target cell is out of the field";
-	if (role < 2 && plan%2 != 0 && agent.energy == 0)
+	if (role < 2 && plan%2 != 0 && prev.agents[role].planned != -1) {
 	  return "Diagonal move by a non-energized samurai";
+	}
         if (role >= 2 && plan >= 8)
 	  return "Dig by a dog";
 	if (plan >= 0) {
@@ -573,16 +571,17 @@ class GameState {
 		 plan1.y == agent2.at.y && plan2.y == agent.at.y) ||
 		(agent.at.y == agent2.at.y && plan1.y == plan2.y &&
 		 plan1.x == agent2.at.x && plan2.x == agent.at.x)) {
-	      if (agent.plan > 8 || agent2.plan > 8 ||
-		  role >= 2 || role2 < 2) {
-		console.log("Diagonal move conflict: " + agent);
+	      if (role >= 2 || role2 < 2) {
 		agent.conflict = true;
 		break;
 	      }
 	    }
 	  }
         }
-        if (!agent.conflict) {
+      }
+      for (let role = 0; role != 4; role++) {
+	const agent = this.agents[role];
+	if (!agent.conflict) {
           let pos = plannedPositions[role];
           agent.at = pos;
           // Dogs make embedded gold known to everyone
@@ -709,15 +708,15 @@ class GameState {
 	    a.digging = 1;
           }
         } else if (substep == midStep) {
-          if (a.action >= 8) a.digging = 2;
 	  a.energy = a.planned < 0 ? 1 : 0;
-        }
-        if (substep == midStep) {
-          if (8 <= a.action && a.action < 16) {
-            new Audio(scoopSoundFile).play();
-            if (a.obtained != 0) new Audio(goldSoundFile).play();
-          } else if (16 <= a.action) {
-            new Audio(plugSoundFile).play();
+          if (a.action >= 8) {
+	    a.digging = 2;
+            if (a.action < 16) {
+              new Audio(scoopSoundFile).play();
+              if (a.obtained != 0) new Audio(goldSoundFile).play();
+            } else {
+              new Audio(plugSoundFile).play();
+	    }
           }
         }
       } else if (a.barking && substep == midStep) {
@@ -1550,8 +1549,8 @@ function setStep(ev) {
   stepRecords[0].redraw(true);
 }
 
-const LocalStorageKey = "SamurAI Dig Here Game Logs";
-const GameLogFileTypeString = "SamurAI Dig Here Game Log";
+const LocalStorageKey = "SamurAI Dig Here 2020 Game Logs";
+const GameLogFileTypeString = "SamurAI Dig Here 2020 Game Log";
 let previousGameLogName = null;
 
 function menuChoice(message, items, store, makeHandler) {
@@ -1641,7 +1640,7 @@ class GameLogLoader {
   handleEvent(ev) {
     const log = this.store[this.item];
     if (log.filetype != GameLogFileTypeString) {
-      showAlertBox("Data stored is not a game log");
+      showAlertBox("Data stored is not a game log of SamurAI Dig Here 2020");
       return;
     }
     applyGameLog(log);
@@ -1817,7 +1816,7 @@ function importFile(ev) {
   reader.onload = e => {
     const log = JSON.parse(e.target.result);
     if (log.filetype != GameLogFileTypeString) {
-      showAlertBox("Data stored is not a game log");
+      showAlertBox("Data stored is not a game log of SamurAI Dig Here 2020");
       return;
     }
     applyGameLog(log);
