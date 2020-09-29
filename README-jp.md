@@ -4,15 +4,17 @@
 ## 文書
 ### ゲームルール
 SamurAI Dig Here ゲームのルールは以下のファイルにあります.
+
 * 日本語版: [documents/rules-jp.html](documents/rules-jp.html)
 * 英語版: [documents/rules.html](documents/rules.html)
 ### ゲーム管理システム
 ゲーム管理システムのマニュアルは以下のファイルにあります.
+
 * 英語版: [documents/manager.html](documents/manager.html)
 * 日本語版: [documents/manager-jp.html](documents/manager-jp.html)
 ### ウェブページ
 ゲームログを可視化するウェブページのマニュアルは以下のファイルにあります.
-The manuals for the game log visualizer web page are in the following files.
+
 * 英語版: [documents/help.html](documents/help.html)
 * 日本語版: Japanese version: [documents/help-jp.html](documents/help-jp.html)
 ### その他の文書
@@ -20,18 +22,24 @@ The manuals for the game log visualizer web page are in the following files.
 
 ## はじめに
 ### 必要なもの
+
 * C++ 開発環境 (C++14 以上のコンパイラと標準ライブラリ)
 * ウェブブラウザ
-文書を読むため, ゲームのリプレイを見るため,
-そしてゲームの競技場の構成を編集するのにウェブブラウザが必要です.
+    文書を読むため, ゲームのリプレイを見るため,
+    そしてゲームの競技場の構成を編集するのにウェブブラウザが必要です.
+    動作確認済みの OS とブラウザの組は以下があります.
+	* Ubuntu: Chrome (85.0.4183.121), Firefox (80.0.1), Opera (71.0.3770.171)
 
 ### インストール
 
 トップレベルのディレクトリで以下を実行してください.
+
 ```
 $ make all
 ```
+
 これで以下のソフトウェアができます.
+
 * manager/manager
    ゲーム管理システム
 * players/simplePlayer
@@ -45,9 +53,11 @@ $ make all
 
 ### テストラン
 トップレベルのディレクトリで以下を実行してください.
+
 ```
 $ make testrun
 ```
+
 これで単純なプレイヤふたつの間でゲームを行い, 結果を [samples/testout.dighere](samples/testout.dighere) に書き出します.
 
 ### 結果の可視化

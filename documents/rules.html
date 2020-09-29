@@ -13,19 +13,20 @@
     <center>
       <p>
 	IPSJ Programming Contest Committee<br>
-	2020/09/29
+	2020/09/30
       </p>
-      <div style="width:70%">
-	<p>
-	  This document gives the rules of the <em>SamurAI Dig Here
-	    2020</em> game, played in the programming contest <em>SamurAI
-	    Coding 2020-21</em> organized by Information Processing
-	  Society of Japan.
-	</p>
-	<p>
-	  This version is a draft subject to change.
-	</p>
     </center>
+    <div style="margin: 0% 15% 0% 15%">
+      <p>
+	This document gives the rules of the <em>SamurAI Dig Here
+	  2020</em> game, played in the programming contest <em>SamurAI
+	  Coding 2020-21</em> organized by Information Processing
+	Society of Japan.
+      </p>
+      <p>
+	This version is a draft subject to change.
+      </p>
+    </div>
 
     <h2>Game Overview</h2>
     <p>
@@ -43,7 +44,7 @@
       called <em>cells</em> aligned in a square lattice.  The size of
       the game field, that is, the number of cells in one side of the
       field may differ from one game to another.  The minimum size is
-      six.
+      six the maximum is twenty.
     </p>
     <p>
       The figure to the right is a bird’s eye view of the square game
@@ -68,12 +69,15 @@
       a time throughout a game.
     </p>
     <p>
-      In one step of a game, a samurai agent can move to one of
-      the <em>four</em> neighboring cells, that is, those cells that
-      share a edge with the cell the samurai is in.  A dog agent can
-      move to one of the <em>eight</em> neighboring cells, that is,
-      those cell that share one or two corners with the cell the dog
-      is in.  They can also stay in the cell they are in.
+      In one step of a game, a dog agent can move to one of the eight
+      neighboring cells, that is, those cell that share one or two
+      corners with the cell the dog is in.  Samurai agents can move to
+      any of the eight neighboring cells in the very first step of a
+      game and steps immediately following one taking a rest, but in
+      other steps, they can move only to one of the four neighboring
+      cells, that are, those cells that share an edge, and diagonal
+      moves to other four cells are not possible.  They can also stay
+      in the cell they are in.
     </p>
     <p>
       When two or more agents are instructed to move to the same cell,
@@ -86,13 +90,15 @@
       Some of the cells in the field may have a <em>hole</em> in them,
       preventing game agents to step into.  A samurai agents can,
       however, instead of making a move, plug a hole in one of the
-      four neighboring cells.  Samurai can also dig new holes in the
-      four neighboring cells.  Digging a new hole is not possible if
-      another agent is already in the cell or moves to the cell in the
-      same step.
+      neighboring cells.  Samurai can also dig new holes in one of the
+      neighboring cells.  The cell to dig/plug a hole can be any of
+      the eight neighboring cells in a step immediately taking a rest;
+      otherwise the target cell is limited to one of four neighboring
+      cells.  Digging a new hole is not possible if another agent is
+      already in the cell or moves to the cell in the same step.
     </p>
     <p>
-      No holes are in the cells where a agents are initially in.
+      No holes are in the cells where agents are initially in.
     </p>
 
     <h3>Buried Treasures</h3>
@@ -101,7 +107,8 @@
       Digging a new hole in a cell with buried treasure digs it out.
       If samurai of both teams dig a hole in the same cell in the same step,
       the treasure dug out is halved and shared by the two teams.
-      The amounts of buried treasure are always an even number.
+      The amounts of buried treasure are always an even number,
+      and the total of the buried treasure does not exceed 10<sup>9</sup>.
     </p>
     <p>
       A dog in one of the eight neighboring cells of the cell with
@@ -172,18 +179,31 @@
       The <em>play plans</em> are the plans of agents' plays sent by the
       player programs, and the <em>actions</em> are the plays actually
       taken by the agents decided by the game management system after
-      validity conflict checks.
+      validity and conflict checks.
     </p>
     <p>
-      For example, if two agents' play plans tell to move to the same
-      cell, their plans conflict each other, and thus the game
-      management system makes both of the agents stop.
-      If a samurai plans to dig a new hole in a cell and another agent
-      plans to move to the same cell, the move has the precedence and
-      the digging will be unsuccessful.
-      If, however, two other agents plan to move to the cell in which
-      a dig is planned, the moves conflict with each other and are
-      canceled, and the dig will be effective.
+      Play plans are called <em>invalid</em> if the plan can be judged
+      to be impossible with the state of the field.  Play plans that
+      might have been possible only considering the state of the
+      field, but have been made impossible because of conflicts with
+      moves of other agents are called <em>inoperable.</em>
+      For example, if an agent plans to move to a cell with a hole in
+      it, the plan is invalid.  On the other hand, if two agents' play
+      plans tell to move to the same cell, their plans conflict each
+      other and thus inoperable.
+    </p>
+    <p>
+      Neither invalid nor inoperable play plans are actually carried
+      out.  The difference is in that invalid play plans are treated
+      exactly the same as a play plan specifying to take
+      a <em>rest</em>.  An inoperable play plan is recorded as it is
+      in a play plan item in the game state information sent to the
+      agents in the next step, while an invalid play plan is recorded
+      as taking a rest.  This prevents information exchange between
+      agents by specifying an invalid plan.  This also enables the
+      samurai's moves to or digs/plugs in the diagonally neighboring
+      cells in the directly following step, exactly the same as taking
+      a rest is specified.
     </p>
     <p>
       Each of play plans and actions is represented as an
@@ -216,7 +236,8 @@
       </div>
       <dl>
 	<dt>&minus;1</dt>
-	<dd>Stay in the cell the agent is located without any move.</dd>
+	<dd>Take a rest; stay in the cell the agent is located without
+	any move.</dd>
 	<dt>0, &hellip;, 7</dt>
 	<dd>Move to one of the neighboring cells.</dd>
 	<dt>8, &hellip;, 15</dt>
@@ -231,50 +252,23 @@
       shown in the table to the right.
     </p>
     <p>
-      Samurai can ordinarily move only to or dig/plug a hole in one of
-      four neighboring cells.  Thus <var>d</var> above must be even.
-      A play plan of a samurai is called <em>invalid</em> if it is
-      neither a non-negative even number less than or equal to 22 nor
-      Exceptions are the first step of a game and the step directly
-      following one with the play plan of &minus;1 (to take a rest).
-      In such a step, samurai can move to or dig/plug a hole in any of
-      the eight neighboring cells, including diagonally neighboring
-      ones.
-    </p>
-    <p>
-      Dog cannot dig or plug a hole.
+      Dogs cannot dig or plug a hole.
       A play plan of a dog less than &minus;1 or greater than 7
       is <em>invalid.</em>
     </p>
     <p>
-      Invalid play plans are treated the same as &minus;1 (taking a
-      rest).  Not only the action of the agent becomes &minus;1, but
-      also the play plan recorded in the game state information,
-      described below, becomes &minus;1 <a href="#invalid
-      plan">[1]</a>.  This also enables the samurai's moves to or
-      digs/plugs in the diagonally neighboring cells in the directly
-      following step.
-    </p>
-    <p>
-      On the other hand, if a play plan cannot be carried out because
-      of cell states and/or positions and moves of agents, the plans
-      are <em>inoperable.</em>
-    </p>
-    <p>
-      Moving to, or trying to dig or plug a hole outside of the field
-      is inoperable.
-      Digging a hole in a cell already with a hole or plugging a
-      non-existent hole is inoperable.
-      Moving to or digging/plugging a hole in a cell where another
-      agent is in at the start of a step is also inoperable.
+      Moving to, or trying to dig or plug a hole outside of the field,
+      digging a hole in a cell already with a hole or plugging a
+      non-existent hole, and moving to or digging/plugging a hole in a
+      cell where another agent is in at the start of a step are
+      all invalid.
     <p>
       When two or more agents plan to move to the same cell in the
-      same step, all such moves are inoperable.
-      Digging a hole in a cell to which another agent moves to in the
-      same step is inoperable.
-      Digging a hole in a cell can be carried out, however, when two
-      or more agents plan to move to the cell and their moves are
-      inoperable.
+      same step, all such moves are inoperable.  Digging a hole in a
+      cell to which another agent moves to in the same step is
+      inoperable.  Digging a hole in a cell becomes operable, however,
+      when two or more other agents plan to move to the cell making
+      their moves inoperable.
     </p>
     <div class="figure" style="width:13%; margin:1%">
       <img src="diagonal.png" width="100%">
@@ -299,13 +293,7 @@
       immediately preceding step when a dog is at A.  All other plays
       are inoperable.
     </p>
-    <p>
-      The action taken for an inoperable plan also becomes &minus;1,
-      the same as planned so, but, unlike invalid plans, the play plan
-      is recorded in the game state information as it is.  Thus, in
-      the game step directly following one with inoperable play plan,
-      diagonal moves and digging/plugging holes are invalid.
-    </p>
+
     <h3>Game State Information</h3>
     <p>
       The game state information sent from the game management system to
@@ -488,9 +476,9 @@
       accumulated independently.
     </p>
     <p>
-      When this time limit is exceeded, the player process is assumed to
-      respond with &minus;1 (stay in the same position) for all the
-      remaining steps.
+      When this time limit is exceeded, the player process is assumed
+      to respond with &minus;1 (take a rest) for all the remaining
+      steps.
     </p>
     <p>
       The value of the think time limit is given for each game.
@@ -503,13 +491,6 @@
       the agents are swapped between two teams.
       The result of the match is judged by the total amounts of
       treasure dug out in two games.
-    </p>
-    <hr>
-    <ul class="footnotes">
-      <li id="invalid plan">
-	Because invalid play plans recorded in the game state information
-	would allow information exchange between agents.
-      </li>
     </p>
   </body>
 </html>

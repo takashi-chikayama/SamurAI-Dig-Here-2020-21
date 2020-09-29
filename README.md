@@ -4,14 +4,17 @@
 ## Documents
 ### Game Rules
 The rules of the game SamurAI Dig Here 2020 can found in the following files.
+
 * English version: [documents/rules.html](documents/rules.html)
 * Japanese version: [documents/rules-jp.html](documents/rules-jp.html)
 ### Game Manager
 The manuals for the game manager are in the following files.
+
 * English version: [documents/manager.html](documents/manager.html)
 * Japanese version: [documents/manager-jp.html](documents/manager-jp.html)
 ### Web Page
 The manuals for the game log visualizer web page are in the following files.
+
 * English version: [documents/help.html](documents/help.html)
 * Japanese version: [documents/help-jp.html](documents/help-jp.html)
 ### Other Documents
@@ -25,14 +28,20 @@ A compiler and standard libraries for c++14 or later is required.
 A web browser is required for viewing the documents,
 visualizing replays of games,
 and also for editing game field configurations.
+The web page for the game is known to work
+on the following systems and browsers.
+	* Ubuntu: Chrome (85.0.4183.121), Firefox (80.0.1), Opera (71.0.3770.171)
 
 ### Installing
 
 Issue the following in the top-level directory.
+
 ```
 $ make all
 ```
+
 This will make the following software.
+
 * manager/manager
    Game management system
 * players/simplePlayer
@@ -46,9 +55,11 @@ This will make the following software.
 
 ### Test Run
 Issue the following in the top-level directory.
+
 ```
 $ make testrun
 ```
+
 This will play a game between two simple players and output a log in the file [samples/testout.dighere](samples/testout.dighere).
 
 ### Viewing the Result
