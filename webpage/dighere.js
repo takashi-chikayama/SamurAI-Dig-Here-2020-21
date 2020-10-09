@@ -133,19 +133,18 @@ class AgentState {
     this.planned = -1;
     this.action = -1;
     this.obtained = 0;
-    this.conflict = false;
   }
   reposition(init) {
     const isDog = this.attributes.seq >= 2;
     let x, y;
-    if (init || (this.action < 0 && !this.conflict)) {
+    if (init || (this.action < 0 && this.planned < 0)) {
       x = this.at.x; y = this.at.y;
     } else {
       let from, to;
       if (this.planned < 0 || this.planned >= 8) {
 	from = to = this.at;
       } else {
-	if (this.conflict) {
+	if (this.planned != this.action) {
 	  conflictStart = true;
 	  if (substep < midStep/2) {
 	    from = this.at;
@@ -467,14 +466,24 @@ class GameState {
 	if (role < 2 && plan%2 != 0 && prev.agents[role].planned != -1) {
 	  return "Diagonal move by a non-energized samurai";
 	}
-        if (role >= 2 && plan >= 8)
-	  return "Dig by a dog";
+        if (role >= 2 && plan >= 8) return "Dig or plug by a dog";
 	if (plan >= 0) {
 	  for (let b = 0; b != 4; b++) {
 	    if (prevGameState.agents[b].at == targetPos) {
 	      return (plan < 8 ? "Moving to" : "Digging") +
 	      " (" + targetPos.x + "," + targetPos.y +
 	      ") occupied by agent " + b;
+	    }
+	  }
+	}
+	if (plan >= 8) {
+	  if (plan < 16) {
+            if (prevGameState.holes.includes(targetPos)) {
+	      return "Trying to dig a cell already with a hole";
+	    }
+	  } else {
+            if (!prevGameState.holes.includes(targetPos)) {
+	      return "Trying to plug a non-existent hole";
 	    }
 	  }
 	}
@@ -490,9 +499,8 @@ class GameState {
       this.golds = Array.from(prevGameState.golds);
       this.timeLeft = prevGameState.timeLeft.slice();
       // Plan actions
-      const plannedPositions = [];
-      const plannedDig = [null, null];
-      const plannedPlug = [null, null];
+      const targets = [];
+      const moveTo = [];
       // Decide plans of agents
       this.agents = [];
       const agentsAt = prevGameState.agents.map(agent => agent.at);
@@ -525,26 +533,17 @@ class GameState {
 	const planEnd = performance.now();
 	this.timeLeft[a] = Math.max(0, this.timeLeft[a] - planEnd + planStart);
         const targetPos = agent.at.neighbors[plan%8];
-        plannedPositions[a] = agent.at;
+        targets[a] = moveTo[a] = agent.at;
         newAgent.planned = plan;
         newAgent.action = -1;
         if (plan >= 0) {
 	  const invalid =
 		invalidAction(a, agent, plan, targetPos, prevGameState);
           if (!invalid) {
+            targets[a] = targetPos;
+	    if (plan < 8) moveTo[a] = targetPos;
             newAgent.direction = plan%8;
-            if (plan < 8 && !prevGameState.holes.includes(targetPos)) {
-              plannedPositions[a] = targetPos;
-              newAgent.action = plan;
-            } else if (plan < 16) {
-              if (!this.holes.includes(targetPos)) {
-                plannedDig[a] = targetPos;
-                newAgent.action = plan;
-              }
-            } else if (this.holes.includes(targetPos)) {
-              plannedPlug[a] = targetPos;
-              newAgent.action = plan;
-            }
+            newAgent.action = plan;
           } else {
 	    console.log("In step "+this.stepNumber +
 			"; agent "+ a +
@@ -554,87 +553,89 @@ class GameState {
           }
         }
       }
-      // Process movements
-      for (let role = 0; role != 4; role++) {
-	const agent = this.agents[role];
-	agent.conflict = false;
-	const plan1 = plannedPositions[role];
-        for (let role2 = 0; role2 != 4; role2++) {
-	  const plan2 = plannedPositions[role2];
-          if (role != role2) {
-	    if (plan1 == plan2) {
-              agent.conflict = true;
-              break;
-	    }
-	    const agent2 = this.agents[role2];
-	    if ((agent.at.x == agent2.at.x && plan1.x == plan2.x &&
-		 plan1.y == agent2.at.y && plan2.y == agent.at.y) ||
-		(agent.at.y == agent2.at.y && plan1.y == plan2.y &&
-		 plan1.x == agent2.at.x && plan2.x == agent.at.x)) {
-	      if (role >= 2 || role2 < 2) {
-		agent.conflict = true;
+      ////////////////////////
+      // Check operabilities
+      ////////////////////////
+      // Check crossing move lines
+      for (let a = 0; a != 4; a++) {
+	const agent = this.agents[a];
+	const target = targets[a];
+        for (let b = 0; b != 4; b++) {
+	  if (a != b) {
+	    const target2 = targets[b];
+	    const agent2 = this.agents[b];
+	    if ((agent.at.x == agent2.at.x &&
+		 agent.at.y + target.y == agent2.at.y + target2.y) ||
+		(agent.at.y == agent2.at.y &&
+		 agent.at.x + target.x == agent2.at.x + target2.x)) {
+	      if (a >= 2 || b < 2) {
+		agent.action = -1;
+		moveTo[a] = agent.at;
 		break;
 	      }
 	    }
 	  }
         }
       }
+      // Check move or dig target conflicts
+      for (let a = 0; a != 4; a++) {
+	const agent = this.agents[a];
+	const target = targets[a];
+        for (let b = a+1; b != 4; b++) {
+	  const agent_b = this.agents[b];
+          if (agent_b.action < 8 && target == targets[b]) {
+            agent.action = agent_b.action = -1;
+	    moveTo[a] = agent.at;
+	    moveTo[b] = agent_b.at;
+	  }
+	}
+      }
+      // Process agent movements
       for (let role = 0; role != 4; role++) {
 	const agent = this.agents[role];
-	if (!agent.conflict) {
-          let pos = plannedPositions[role];
-          agent.at = pos;
+        const pos = moveTo[role];
+	agent.at = pos;
+	if (agent.action < 8 && role >= 2) {
           // Dogs make embedded gold known to everyone
-          if (role >= 2) {
-            this.hiddenGolds.forEach(g => {
-              if (g == pos) {
-                this.hiddenGolds = this.hiddenGolds.filter(h => h != g);
-                this.knownGolds.push(g);
-		agent.barking = 1;
-              }
-            });
-          }
-        } else {
-          agent.action = -1;
+          this.hiddenGolds.forEach(g => {
+            if (g == pos) {
+	      this.hiddenGolds = this.hiddenGolds.filter(h => h != g);
+	      this.knownGolds.push(g);
+	      agent.barking = 1;
+            }
+          });
         }
       }
-      // Process digging
+      // Process digging and plugging
       for (let a = 0; a != 2; a++) {
-        const dug = plannedDig[a];
-        const digTogether = (dug == plannedDig[1-a]);
-        if (dug != null) {
-          if (this.agents.some(b => b.at == dug)) {
-            // Position to be dug out is occupied by another agent
-            this.agents[a].action = -1;
-            continue;
-          }
-          if (dug.gold != 0 &&
-	      (this.hiddenGolds.includes(dug) ||
-	       this.knownGolds.includes(dug))) {
-            this.goldRemaining -= dug.gold;
-            if (digTogether) {
-              this.golds[0] += dug.gold/2;
-              this.golds[1] += dug.gold/2;
-              this.agents[0].obtained = dug.gold/2;
-              this.agents[1].obtained = dug.gold/2;
-            } else {
-              this.golds[a] += dug.gold;
-              this.agents[a].obtained = dug.gold;
-            }
+	const agent = this.agents[a];
+	if (agent.action >= 8) {
+	  if (agent.action < 16) {
+            const dug = targets[a];
+            this.holes.push(dug);
             this.hiddenGolds = this.hiddenGolds.filter(c => c != dug);
             this.knownGolds = this.knownGolds.filter(c => c != dug);
             this.dug.push(dug);
-          }
-          this.holes.push(dug);
-        }         
-        if (digTogether) break;
-      }
-      // Process plugging
-      for (let a = 0; a != 2; a++) {
-        const plugged = plannedPlug[a];
-        if (plugged != null && this.holes.indexOf(plugged) != -1) {
-          this.holes.splice(this.holes.indexOf(plugged), 1);
-          this.plugged.push(plugged);
+            if (dug.gold != 0) {
+              this.goldRemaining -= dug.gold;
+	      const opp = (a+1)%2;
+              if (targets[opp] == dug) {
+		this.golds[0] += dug.gold/2;
+		this.golds[1] += dug.gold/2;
+		this.agents[0].obtained = dug.gold/2;
+		this.agents[1].obtained = dug.gold/2;
+		break;
+              } else {
+		this.golds[a] += dug.gold;
+		this.agents[a].obtained = dug.gold;
+	      }
+            }
+          } else {
+	    // Process plugging
+            const plugged = targets[a];
+            this.holes.splice(this.holes.indexOf(plugged), 1);
+            this.plugged.push(plugged);
+	  }
         }
       }
     }
@@ -1599,16 +1600,6 @@ function applyGameLog(log) {
       throw new Error("Inconsistency in Step Number Found");
     }
     for (let a = 0; a != 4; a++) {
-      const pa = p.actions[a];
-      const sa = state.agents[a].action;
-      if (pa != sa) {
-	showAlertBox(
-	  "Action of agent " + a + " does not match at step "
-	    + (step+1) + ":\n" +
-	    "  Recorded: " + pa + "\n" +
-	    "  Actual: " + sa);
-	throw new Error("Inconsistency in Agent Action Found");
-      }
       const pp = p.agents[a];
       const sp = state.agents[a].at;
       if (pp.x != sp.x || pp.y != sp.y) {
@@ -1618,6 +1609,16 @@ function applyGameLog(log) {
 	    "  Recorded: (" + pp.x + "," + pp.y + ")\n" +
 	    "  Actual: (" + sp.x + "," + sp.y + ")");
 	throw new Error("Inconsistency in Agent Position Found");
+      }
+      const pa = p.actions[a];
+      const sa = state.agents[a].action;
+      if (pa != sa) {
+	showAlertBox(
+	  "Action of agent " + a + " does not match at step "
+	    + (step+1) + ":\n" +
+	    "  Recorded: " + pa + "\n" +
+	    "  Actual: " + sa);
+	throw new Error("Inconsistency in Agent Action Found");
       }
     }
     if (p.scores[0] != state.golds[0] || p.scores[1] != state.golds[1]) {

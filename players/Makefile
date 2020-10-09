@@ -5,7 +5,7 @@ BASICOBJECTS= playerMain.o gameInfo.o fieldMap.o
 SIMPLEOBJECTS= $(BASICOBJECTS) greedySamurai.o snoopyDog.o
 RANDOMOBJECTS= $(BASICOBJECTS) randomSamurai.o randomDog.o
 TIMEOUTOBJECTS=  $(BASICOBJECTS) timeoutSamurai.o randomDog.o
-EXECUTABLES= simplePlayer randomPlayer timeoutPlayer
+EXECUTABLES= simplePlayer randomPlayer diggerPlayer timeoutPlayer
 DIGGEROBJECTS= $(BASICOBJECTS) diggerSamurai.o randomDog.o
 ABORTINGOBJECTS= $(BASICOBJECTS) abortingSamurai.o randomDog.o
 

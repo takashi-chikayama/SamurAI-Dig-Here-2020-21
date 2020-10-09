@@ -3,17 +3,17 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" href="samuraidocs.css" >
-    <title>SamurAI Dig Here 2020 Game Rules (draft)</title>
+    <title>SamurAI Dig Here 2020 Game Rules</title>
   </head>
   <body>
     <span style="float:left">
       <a href="rules-jp.html" target="_blank">日本語</a>
     </span>
-    <h1>SamurAI Dig Here 2020 Game Rules (draft)</h1>
+    <h1>SamurAI Dig Here 2020 Game Rules</h1>
     <center>
       <p>
 	IPSJ Programming Contest Committee<br>
-	2020/09/30
+	draft, 2020/10/09
       </p>
     </center>
     <div style="margin: 0% 15% 0% 15%">
@@ -80,9 +80,12 @@
       in the cell they are in.
     </p>
     <p>
-      When two or more agents are instructed to move to the same cell,
-      none of the agents can make their moves.
-      All such agents are kept in their original positions.
+      When planned plays are not viable, for example, when two or more
+      agents are instructed to move to the same cell, none of the
+      agents can make their moves and all such agents are kept in
+      their original positions.  Details are described in the
+      section <a href="#viability">Viability Judgment
+      Procedure</a> below.
     </p>
 
     <h3>Holes</h3>
@@ -186,24 +189,24 @@
       to be impossible with the state of the field.  Play plans that
       might have been possible only considering the state of the
       field, but have been made impossible because of conflicts with
-      moves of other agents are called <em>inoperable.</em>
+      moves of other agents are called <em>not viable.</em>
       For example, if an agent plans to move to a cell with a hole in
       it, the plan is invalid.  On the other hand, if two agents' play
       plans tell to move to the same cell, their plans conflict each
-      other and thus inoperable.
+      other and thus not viable.
     </p>
     <p>
-      Neither invalid nor inoperable play plans are actually carried
-      out.  The difference is in that invalid play plans are treated
-      exactly the same as a play plan specifying to take
-      a <em>rest</em>.  An inoperable play plan is recorded as it is
-      in a play plan item in the game state information sent to the
-      agents in the next step, while an invalid play plan is recorded
-      as taking a rest.  This prevents information exchange between
-      agents by specifying an invalid plan.  This also enables the
-      samurai's moves to or digs/plugs in the diagonally neighboring
-      cells in the directly following step, exactly the same as taking
-      a rest is specified.
+      Play plans are not carried out when they are invalid or not
+      viable.  The difference is in that invalid play plans are
+      treated exactly the same as a play plan specifying to take
+      a <em>rest</em>.  Valid but not viable play plans are recorded
+      as they are in the play plan items in the game state information
+      sent to the agents in the next step, while an invalid play plan
+      is recorded as taking a rest.  This prevents information
+      exchange between agents by specifying an invalid plan.  This
+      also enables the samurai's moves to or digs/plugs in the
+      diagonally neighboring cells in the directly following step,
+      exactly the same as taking a rest is specified.
     </p>
     <p>
       Each of play plans and actions is represented as an
@@ -261,39 +264,77 @@
       digging a hole in a cell already with a hole or plugging a
       non-existent hole, and moving to or digging/plugging a hole in a
       cell where another agent is in at the start of a step are
-      all invalid.
-    <p>
-      When two or more agents plan to move to the same cell in the
-      same step, all such moves are inoperable.  Digging a hole in a
-      cell to which another agent moves to in the same step is
-      inoperable.  Digging a hole in a cell becomes operable, however,
-      when two or more other agents plan to move to the cell making
-      their moves inoperable.
+      all <em>invalid.</em>
     </p>
-    <div class="figure" style="width:13%; margin:1%">
-      <img src="diagonal.png" width="100%">
+    <p>
+      Valid play plans can be judged <em>not viable</em> due to
+      conflicts with other agents' play plans.  Details are
+      described in the next section.
+    </p>
+    <h3 id="viability">Viability Judgment Procedure</h3>
+    <p>
+      Play plans are judged invalid, viable, or not viable according
+      to the following procedure, applied in this order.
+      <dl>
+	<dt>Elimination of invalid plans</dt>
+	<dd>
+	  Invalid play plans are regarded the same as taking a rest.
+	</dd>
+	<dt>Crossing move lines</dt>
+	<dd>
+	  Diagonal play plans of two agents, moving, digging or
+	  plugging a hole, cross their move lines, if both agents are
+	  samurai are both are a dog, their plans are not viable.  If
+	  one is a samurai and the other is a dog, the dog's plan is
+	  not viable.
+	</dd>
+	<dt>Move collision</dt>
+	<dd>
+	  Multiple agents' plans of moving to the same cell are not viable.
+	</dd>
+	<dt>Digging a hole at the move destination of another agent</dt>
+	<dd>
+	  When another agent moves to the cell in which a samurai
+	  plans to dig a hole, the digging plan is not viable.
+	</dd>
+      </dl>
+    </p>
+    <div class="figure" style="width:30%; margin:1%">
+      <img src="viability.png" width="100%">
       <center>
-	<caption>Diagonal Plays</caption>
+	<caption>Viability Judgment Example</caption>
       </center>
     </div>
     <p>
-      When two diagonal moves, digging, and/or plugging cross their
-      lines, both plays are inoperable.  An exception, however, is
-      when diagonal moves of a samurai and a dog cross each other,
-      in which case the samurai's move is operable while the dog's
-      move is inoperable.
-    </p>
-    <p>
-      Assume that, in the chart on the right, both moves, digging, and
-      plugging from A to D and from B to C are planned, that is, an
-      agent at A plans 7, 15, or 23, and an agent at B plans 1, 9, or
-      17.  The only operable plays are, plan 7 by a samurai at A that
-      took a rest in the immediately preceding step when a dog is at
-      B, and plan 1 by a samurai at B that took a rest in the
-      immediately preceding step when a dog is at A.  All other plays
-      are inoperable.
-    </p>
-
+      Assume that agents are positioned as shown in the figure to the
+      right and the following play plans are indicated.
+      <ul>
+	<li>Red samurai: Move south east (7)</li>
+	<li>Red dog: Move north west (5)</li>
+	<li>Blue samurai: Dig a hole in the west cell (10)</li>
+	<li>Blue dog: Move north east (3)</li>
+      </ul>
+      According to the above-described procedure, viability of the
+      play plans are judged as follows.
+      <ul>
+	<li>All the play plans are valid.</li>
+	<li>
+	  The move lines of the red samurai and the blue dog cross.
+	  As samurai has priority over dog,
+	  the blue dog's plan is judged not viable.
+	</li>
+	<li>
+	  As the blue dog's plan is not viable, the move of the red
+	  dog to the same destination is judged viable.
+	</li>
+	<li>
+	  The blue samurai's plan to dig a hole to the destination of
+	  the red dog is judged not viable.
+	</li>
+      </ul>
+      In conclusion, plans of red agents are both viable while
+      neither of the plans of blue agents is viable.
+    </p>      
     <h3>Game State Information</h3>
     <p>
       The game state information sent from the game management system to

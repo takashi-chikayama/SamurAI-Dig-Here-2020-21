@@ -54,90 +54,106 @@ Field::Field(const Field &fld) {
 Field::Field(const Field &prev, const int plans[],
 	     int actions[], int scores[])
   :Field(prev) {
-  Cell dug[2];
   Cell targets[4];
+  Cell moveTo[4];
+  static const int dxs[] = {  0, -1, -1, -1,  0, +1, +1, +1 };
+  static const int dys[] = { +1, +1,  0, -1, -1, -1,  0, +1 };
+  fill(actions, actions+4, -1);
+  //////////////////////////////
+  // Check validities of plans
   for (int a = 0; a != 4; a++) {
     Agent &agt = agents[a];
-    int plan = plans[a];
-    actions[a] = -1;		// Stop on an invalid move
     agt.energized = true;
-    // Check if the plan is valid
+    moveTo[a] = targets[a] = Cell(agt.x, agt.y);
+    int plan = plans[a];
+    actions[a] = -1;		// Take a rest when plan is invalid
     if (plan < 0 || 24 <= plan ||
-      // Out of range, or
-	(a < 2 && plan%2 != 0 && !prev.agents[a].energized)) {
-      // Diagonal move by a samurai not immediately after taking a rest
+	// Taking a rest or a plan is out of range, or
+	(a < 2 && plan%2 != 0 && !prev.agents[a].energized) ||
+	// Diagonal move by a samurai not immediately after taking a rest, or
+	(a >= 2 && 8 <= plan)
+	// Dogs plan to dig or plug a hole
+	) {
       continue;
     }
-    static const int dxs[] = {  0, -1, -1, -1,  0, +1, +1, +1 };
-    static const int dys[] = { +1, +1,  0, -1, -1, -1,  0, +1 };
     int nx = agt.x + dxs[plan%8];
     int ny = agt.y + dys[plan%8];
     if (nx < 0 || size <= nx || ny < 0 || size <= ny) {
       // Moving to, digging, or plugging a cell out of the field
       continue;
     }
-    Cell target(nx, ny);
+    Cell target = Cell(nx, ny);
     if (find(agents, agents+4, target) != agents+4) {
-      // Moving to, digging, or plugging hole in a cell with another agent
+      // Targetting a cell with another agent is invalid
       continue;
     }
-    if (a >= 2 && 8 <= plan) {
-      // Dogs can't dig or plug a hole
+    if (find(holes.begin(), holes.end(), target) != holes.end()) {
+      // If the target has a hole in it,
+      // moving to or digging a hole there is invalid
+      // If the target cell has a hole
+      if (plan < 16) continue;
+    } else if (24 <= plan) {
+      // If not, plugging a non-existent hole is invalid
       continue;
     }
-    if (plan < 16) {
-      if (find(holes.begin(), holes.end(), target) != holes.end()) {
-	// Moving to or digging a cell already with a hole
-	continue;
-      }
-      if (8 <= plan) {
-	dug[a] = target;
-      }
-    } else if (find(holes.begin(), holes.end(), target) == holes.end()) {
-      // Plugging a cell without a hole
-      continue;
+    if (0 <= plan && plan < 8) { // Move may succeed
+      moveTo[a] = target;
     }
     actions[a] = plan;
     targets[a] = target;
-    agt.direction = plan%8;
     agt.energized = false;
   }
-  // Check for action plan conflicts
-  bool conflicts[4];
+  //////////////////////////////
+  // Check for effectiveness of plans
+  // First, check for diagonal play conflicts
   for (int a = 0; a != 4; a++) {
-    conflicts[a] = false;
     int action = actions[a];
-    if (0 <= action && action < 8) {
+    if (action >= 0) {
       Cell &target = targets[a];
       for (int b = 0; b != 4; b++) {
 	if (a != b) {
-	  if (0 <= actions[b] && actions[b] < 8) {
-	    Cell &target_b = targets[b];
-	    // Check whether two or more agents moving to the same cell
-	    if (target == target_b) {
-	      conflicts[a] = true;
-	    }
-	    // Check whether diagonal moves cross, for dogs
-	    if (a >= 2 &&
-		((agents[a].y == agents[b].y &&
-		  agents[a].x + target.x == agents[b].x + target_b.x) ||
-		 (agents[a].x == agents[b].x &&
-		  agents[a].y + target.y == agents[b].y + target_b.y))) {
-	      conflicts[a] = true;
+	  Cell &target_b = targets[b];
+	  // Check whether diagonal move lines cross
+	  if (((agents[a].y == agents[b].y &&
+		agents[a].x + target.x == agents[b].x + target_b.x) ||
+	       (agents[a].x == agents[b].x &&
+		agents[a].y + target.y == agents[b].y + target_b.y))) {
+	    if (a%2 >= 2 || b%2 < 2) {
+	      actions[a] = -1;
+	      moveTo[a] = agents[a];
 	    }
 	  }
 	}
       }
     }
   }
+  // Check for move destination collision
+  for (int a = 0; a != 4; a++) {
+    if (0 <= actions[a] && actions[a] < 8) {
+      for (int b = 0; b != 4; b++) {
+	if (a != b && moveTo[a] == moveTo[b]) {
+	  actions[a] = -1;
+	  break;
+	}
+      }
+    }
+  }
+  // Then check for dig/plug effectiveness
+  for (int a = 0; a != 4; a++) {
+    if (plans[a] > 8) {
+      for (int b = 0; b != 4; b++) {
+	if (targets[a] == moveTo[b]) {
+	  actions[a] = -1;
+	}
+      }
+    }
+  }
   for (int a = 0; a != 4; a++) {
     int action = actions[a];
-    if (conflicts[a]) {
-      actions[a] = -1;
-    } else if (0 <= action && action < 8) {
-      Cell &target = targets[a];
-      agents[a].x = target.x;
-      agents[a].y = target.y;
+    if (0 <= action && action < 8) {
+      Cell &destination = moveTo[a];
+      agents[a].x = destination.x;
+      agents[a].y = destination.y;
     }
   }
   for (int a = 0; a != 4; a++) {
@@ -159,51 +175,42 @@ Field::Field(const Field &prev, const int plans[],
 	    hidden.erase(found);
 	  }
 	}
-      } else {
-	for (int b = 0; b != 4; b++) {
-	  if (b != a && target == agents[b]) {
-	    // Cannot dig or plug a hole in a cell to which another agent moves
-	    actions[a] = -1;
-	    goto NODIGPLUG;
-	  }
-	}
-	if (action < 16) {
-	  // Dig a hole
-	  vector <Gold> *foundIn = nullptr;
-	  auto g = find(known.begin(), known.end(), target);
-	  if (g != known.end()) {
-	    foundIn = &known;
-	  } else {
-	    g = find(hidden.begin(), hidden.end(), target);
-	    if (g != hidden.end()) {
-	      foundIn = &hidden;
-	    }
-	  }
-	  if (foundIn != nullptr) {
-	    // Some gold is dug out
-	    if (dug[0] == dug[1]) {
-	      // Both teams dug out the same gold
-	      scores[0] += g->amount/2;
-	      scores[1] += g->amount/2;
-	    } else {
-	      scores[a] += g->amount;
-	    }
-	    if (foundIn->size() != 1) {
-	      *g = *(foundIn->rbegin());
-	    }
-	    foundIn->pop_back();
-	  }
-	  auto h = find(holes.begin(), holes.end(), target);
-	  if (h == holes.end()) holes.push_back(target);
+      } else if (action < 16) {
+	// Dig a hole
+	vector <Gold> *foundIn = nullptr;
+	auto g = find(known.begin(), known.end(), target);
+	if (g != known.end()) {
+	  foundIn = &known;
 	} else {
-	  // Plug a hole
-	  auto h = find(holes.begin(), holes.end(), target);
-	  if (h != holes.end()) {
-	    if (holes.size() != 1) *h = *holes.rbegin();
-	    holes.pop_back();
+	  g = find(hidden.begin(), hidden.end(), target);
+	  if (g != hidden.end()) {
+	    foundIn = &hidden;
 	  }
 	}
-      NODIGPLUG:;
+	if (foundIn != nullptr) {
+	  // Some gold is dug out
+	  int opp = (a+1)%2;
+	  if (8 <= actions[opp] && targets[a] == targets[opp]) {
+	    // If opponent samurai is also digging the same cell
+	    scores[a] += g->amount/2;
+	    scores[opp] += g->amount/2;
+	  } else {
+	    scores[a] += g->amount;
+	  }
+	  if (foundIn->size() != 1) {
+	    *g = *(foundIn->rbegin());
+	  }
+	  foundIn->pop_back();
+	}
+	auto h = find(holes.begin(), holes.end(), target);
+	if (h == holes.end()) holes.push_back(target);
+      } else {
+	// Plug a hole
+	auto h = find(holes.begin(), holes.end(), target);
+	if (h != holes.end()) {
+	  if (holes.size() != 1) *h = *holes.rbegin();
+	  holes.pop_back();
+	}
       }
     }
   }
