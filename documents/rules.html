@@ -192,13 +192,13 @@
       moves of other agents are called <em>not viable.</em>
       For example, if an agent plans to move to a cell with a hole in
       it, the plan is invalid.  On the other hand, if two agents' play
-      plans tell to move to the same cell, their plans conflict each
-      other and thus not viable.
+      plans tell to move to the same cell, their plans conflict with each
+      other and thus are not viable.
     </p>
     <p>
       Play plans are not carried out when they are invalid or not
-      viable.  The difference is in that invalid play plans are
-      treated exactly the same as a play plan specifying to take
+      viable.  The difference is that invalid play plans are
+      treated the same as a play plan specifying to take
       a <em>rest</em>.  Valid but not viable play plans are recorded
       as they are in the play plan items in the game state information
       sent to the agents in the next step, while an invalid play plan
@@ -206,7 +206,7 @@
       exchange between agents by specifying an invalid plan.  This
       also enables the samurai's moves to or digs/plugs in the
       diagonally neighboring cells in the directly following step,
-      exactly the same as taking a rest is specified.
+      the same as taking a rest is specified.
     </p>
     <p>
       Each of play plans and actions is represented as an
@@ -282,7 +282,7 @@
 	</dd>
 	<dt>Crossing move lines</dt>
 	<dd>
-	  Diagonal play plans of two agents, moving, digging or
+	  When diagonal play plans of two agents, moving, digging or
 	  plugging a hole, cross their move lines, if both agents are
 	  samurai are both are a dog, their plans are not viable.  If
 	  one is a samurai and the other is a dog, the dog's plan is
@@ -298,6 +298,21 @@
 	  plans to dig a hole, the digging plan is not viable.
 	</dd>
       </dl>
+      Plans judged not viable for the reasons listed above
+      are neglected in viability judgment of other plans.
+      Thus the following hold.
+      <ul>
+	<li>
+	  When a move plans of two agents are judge not viable as
+	  their move lines cross each other, the third agent can move
+	  to the destination of the planned but disabled moves.
+	</li>
+	<li>
+	  When plans to move to the same destination of two or more
+	  agents are not viable, plans of other agents to dig a hole
+	  in that cell are viable.
+	</li>
+      </ul>
     </p>
     <div class="figure" style="width:30%; margin:1%">
       <img src="viability.png" width="100%">
