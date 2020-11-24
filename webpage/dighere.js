@@ -244,6 +244,7 @@ class Cell {
     this.isCorner =
       (x == 0 || x == fieldSize-1) && (y == 0 || y == fieldSize-1)
     this.gold = 0;
+    this.alreadyDug = false;
   }
   resize() {
     this.cx = (fieldSize+this.x-this.y)*cellWidth/2;
@@ -578,16 +579,25 @@ class GameState {
         }
       }
       // Check move or dig target conflicts
+      const notViable = [];
       for (let a = 0; a != 4; a++) {
+	notViable[a] = false;
 	const agent = this.agents[a];
 	const target = targets[a];
-        for (let b = a+1; b != 4; b++) {
-	  const agent_b = this.agents[b];
-          if (agent_b.action < 8 && target == targets[b]) {
-            agent.action = agent_b.action = -1;
-	    moveTo[a] = agent.at;
-	    moveTo[b] = agent_b.at;
+        for (let b = 0; b != 4; b++) {
+	  if (a != b && target == moveTo[b]) {
+	    const agent_b = this.agents[b];
+            if (agent_b.action < 8) {
+	      notViable[a] = true;
+	    }
 	  }
+	}
+      }
+      for (let a = 0; a != 4; a++) {
+	if (notViable[a]) {
+	  const agent = this.agents[a];
+	  agent.action = -1;
+	  moveTo[a] = agent.at;
 	}
       }
       // Process agent movements
@@ -616,7 +626,10 @@ class GameState {
             this.hiddenGolds = this.hiddenGolds.filter(c => c != dug);
             this.knownGolds = this.knownGolds.filter(c => c != dug);
             this.dug.push(dug);
-            if (dug.gold != 0) {
+            if (dug.gold != 0 && !dug.alreadyDug) {
+	      alert("Dug: "+dug.gold+" at step "+this.stepNumber
+		    +" Agent: "+a+"by action "+agent.action
+		    +" target ("+dug.x+","+dug.y+")");
               this.goldRemaining -= dug.gold;
 	      const opp = (a+1)%2;
               if (targets[opp] == dug) {
@@ -629,6 +642,7 @@ class GameState {
 		this.golds[a] += dug.gold;
 		this.agents[a].obtained = dug.gold;
 	      }
+	      dug.alreadyDug = true;
             }
           } else {
 	    // Process plugging
@@ -1833,7 +1847,7 @@ function exportGameLog(ev) {
     doExportToFile);
 }
 
-const DigHereFileExt = ".dighere";
+const DigHereFileExts = ".dighere";
 
 function doExportToFile(name) {
   const periodPos = name.lastIndexOf(".");
