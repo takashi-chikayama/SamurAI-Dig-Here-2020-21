@@ -627,9 +627,6 @@ class GameState {
             this.knownGolds = this.knownGolds.filter(c => c != dug);
             this.dug.push(dug);
             if (dug.gold != 0 && !dug.alreadyDug) {
-	      alert("Dug: "+dug.gold+" at step "+this.stepNumber
-		    +" Agent: "+a+"by action "+agent.action
-		    +" target ("+dug.x+","+dug.y+")");
               this.goldRemaining -= dug.gold;
 	      const opp = (a+1)%2;
               if (targets[opp] == dug) {
