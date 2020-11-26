@@ -3,6 +3,7 @@ const sponsorLogos = [
 //  { category: "platinum", source: "ipsj-logo.jpg" },
   { category: "gold", source: "e-Seikatsu.png" },
   { category: "gold", source: "KCT-trimmed.png" },
+  { category: "gold", source: "jastec.png" },
 //  { category: "gold", source: "teamlab.png" },
   { category: "platinum", source: "teams.png" },
 //  { category: "platinum", source: "taikai.png" },
