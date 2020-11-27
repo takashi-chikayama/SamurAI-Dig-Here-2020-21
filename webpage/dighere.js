@@ -1844,7 +1844,7 @@ function exportGameLog(ev) {
     doExportToFile);
 }
 
-const DigHereFileExts = ".dighere";
+const DigHereFileExt = ".dighere";
 
 function doExportToFile(name) {
   const periodPos = name.lastIndexOf(".");
