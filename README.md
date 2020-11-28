@@ -23,7 +23,9 @@ Some hints on playing tactics are under preparation.
 ## Getting Started
 ### Prerequisites
 * C++ development environment
-A compiler and standard libraries for c++14 or later is required.
+	* A compiler and standard libraries for c++14 or later is required.
+	* There are known problems on the Cygwin environment.
+Please consider using WSL (Windows Subsystem for Linux) on windows.
 * A web browser
 A web browser is required for viewing the documents,
 visualizing replays of games,
