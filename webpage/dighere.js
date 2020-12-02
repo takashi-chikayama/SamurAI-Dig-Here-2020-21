@@ -1039,7 +1039,7 @@ function resizeField() {
   diamondLayer.style.display = editMode ? "block" : "none";
   field.appendChild(diamondLayer);
   // Resize sponsor logos
-  goldLogoImages.forEach(resizeLogo);
+  platinumLogoImages.forEach(resizeLogo);
 }
 
 function redrawField(config) {
@@ -1132,7 +1132,8 @@ function hideHiddenGold() {
 
 class Random {
   constructor() {
-    this.x = 123456789;
+    // this.x = 123456789;
+    this.x = Date.now();
     this.y = 362436069;
     this.z = 521288629;
     this.w = 886751239;
@@ -1187,23 +1188,23 @@ function resizeLogo(logo) {
   logo.width = mag*logo.naturalWidth;
 }
 
-const goldLogoImages = [];
+const platinumLogoImages = [];
 
 function displayLogo() {
   // Sponsor logos at the bottom of the top bar
   // Shuffle the order of logos first
   const logoAreas = ["logoAreaLeft", "logoAreaRight"].
     map(id => document.getElementById(id));
-  for (let k = goldLogos.length; k != 1; k--) {
+  for (let k = platinumLogos.length; k != 1; k--) {
     const r = Math.floor(k*Math.random());
-    const tmp = goldLogos[k-1];
-    goldLogos[k-1] = goldLogos[r];
-    goldLogos[r] = tmp;
+    const tmp = platinumLogos[k-1];
+    platinumLogos[k-1] = platinumLogos[r];
+    platinumLogos[r] = tmp;
   }
-  for (let s = 0; s != goldLogos.length; s++) {
+  for (let s = 0; s != platinumLogos.length; s++) {
     const logo = document.createElement('img');
-    goldLogoImages.push(logo);
-    logo.src = "../logos/" + goldLogos[s];
+    platinumLogoImages.push(logo);
+    logo.src = "../logos/" + platinumLogos[s];
     logo.onload = () => {
       logo.style.background = "white";
       logo.style.margin = "10px";

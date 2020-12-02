@@ -1,15 +1,11 @@
 const sponsorLogos = [
   { category: "platinum", source: "samurailogo-trimmed.png" },
-//  { category: "platinum", source: "ipsj-logo.jpg" },
+  { category: "platinum", source: "teams.png" },
   { category: "gold", source: "e-Seikatsu.png" },
   { category: "gold", source: "KCT-trimmed.png" },
   { category: "gold", source: "jastec.png" },
-//  { category: "gold", source: "teamlab.png" },
-  { category: "platinum", source: "teams.png" },
-//  { category: "platinum", source: "taikai.png" },
   { category: "silver", source: "seizoroi.png" },
   { category: "silver", source: "ipsj-landscape.jpg" },
 ];
 
-// const goldLogos = ["hitachi.png", "e-Seikatsu.png", "teamlab.png"];
-const goldLogos = ["ipsj-logo.jpg", "taikai.png"];
+const platinumLogos = ["hitachi.png", "ipsj-logo.jpg", "taikai.png"];
