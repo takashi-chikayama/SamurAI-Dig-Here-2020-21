@@ -76,6 +76,15 @@ top.
 The manual for using the web page can be visited by clicking the
 button with a question mark icon on top right of the page.
 
+## Game Field Settings
+
+A number of files containing game field setting, with the file name extension
+of .dighere can be found in [maps](maps) directory.
+
+The directory [preliminary-candidates](maps/preliminary-cancndidates) contains
+field settings candidates for the preliminary round,
+except that hidden treasures are not buried yet.
+
 ## Authors
 
 * **Takashi Chikayama** - *Initial version*
