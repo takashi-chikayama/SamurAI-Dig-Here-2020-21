@@ -79,7 +79,7 @@ $ make testrun
 競技場の設定を記述する拡張子 .dighere のファイルが
 [maps](maps) ディレクトリ内に多数あります．
 
-ディレクトリ [preliminary-candidates](maps/preliminary-cancndidates) には
+ディレクトリ [preliminary-candidates](maps/preliminary-candidates) には
 予選ラウンドで用いる競技場設定の候補が入っています．
 ただし隠れた埋蔵金は設定してありません．
 
