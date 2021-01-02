@@ -468,6 +468,8 @@ class GameState {
 	  return "Diagonal move by a non-energized samurai";
 	}
         if (role >= 2 && plan >= 8) return "Dig or plug by a dog";
+	if (plan < 8 && prev.holes.includes(targetPos))
+	  return "Move to a cell with a hole";
 	if (plan >= 0) {
 	  for (let b = 0; b != 4; b++) {
 	    if (prevGameState.agents[b].at == targetPos) {
