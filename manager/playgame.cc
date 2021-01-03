@@ -220,8 +220,13 @@ vector <StepLog> playGame
 	cerr << "Agent " << p
 	     << "@(" << setw(coordWidth) << config->agents[p].x << ","
 	     << setw(coordWidth) << config->agents[p].y << ") ";
-	int targetX = config->agents[p].x + dx[(plans[p]+1)%8];
-	int targetY = config->agents[p].y + dy[(plans[p]+1)%8];
+	bool failure = plans[p] != actions[p];
+	int targetX = config->agents[p].x;
+	int targetY = config->agents[p].y;
+	if (!failure) {
+	  targetX += dx[plans[p]%8 + 1];
+	  targetY += dy[plans[p]%8 + 1];
+	}
 	cerr << (plans[p] < 0 ? "stay" :
 		 plans[p] < 8 ? "move" :
 		 plans[p] < 16 ? "dig " : "plug")
