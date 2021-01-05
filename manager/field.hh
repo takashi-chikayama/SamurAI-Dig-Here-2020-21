@@ -19,6 +19,7 @@ struct Cell {
 struct Agent: Cell {
   int direction;
   bool energized = true;
+  string reason = "";
   Agent(int x, int y, int d);
   Agent(object &o);
   Agent(const Agent &another);

@@ -14,7 +14,7 @@
     <center>
       <p>
 	IPSJ Programming Contest Committee<br>
-	2020/09/28
+	2021/01/05
       </p>
       <p>
 	The <em>SamurAI Dig Here 2020</em> game manager is a tool to play
@@ -94,13 +94,13 @@
 	  The summary consists of the following lines.
 	  <div class="exampleText">
 	    <pre>
-Step: 4
-Golds known: 6@(6,6) 8@(2,7)
-Agent 0@(7,6) dig  (6,6)X 59960 msec left
-Agent 1@(2,6) dig  (2,7)  59960 msec left
-Agent 2@(7,5) move (6,6)  59147 msec left
-Agent 3@(3,6) move (4,5)  59589 msec left
-Scores are 0:8</pre>
+Step: 66
+Agent 0@(0,5) move (0,6)  9330 msec left
+Agent*1@(1,7) move (2,8)  7941 msec left
+Agent 2@(1,8) move (2,7)X 9340 msec left; Crossing move lines
+Agent 3@(0,4) move (1,5)  7785 msec left
+Scores are 223:103
+	    </pre>
 	  </div>
 	  <ul>
 	    <li>
@@ -113,23 +113,22 @@ Scores are 0:8</pre>
 	    <li>
 	      The positions, play plans, and think time left of four agents,
 	      one line for each agent.
-	      The coordinates of cell to move to, dig up, or fill up
+	      The agent number is prefixed with an asterisk <tt>*</tt>
+	      if the agent had taken a rest in the previous step
+	      and thus plays to diagonal directions were valid.
+	      The coordinates of cell planned to move to, dig up, or fill up
 	      are also displayed.
-	      When the plan cannot be actually taken because of
-	      conflicts with plans of other agents,
-	      it is followed by an <tt>X</tt> to indicate it.
+	      When the plan cannot be actually taken for the plan
+	      was invalid or not viable,
+	      it is followed by an <tt>X</tt> to indicate it,
+	      and the point of inappropriateness of the plan
+	      is explained at the end of the line.
 	    </li>
 	    <li>
 	      Scores of both teams up to this step.
 	    </li>
 	  </ul>
-	  An example is shown in the figure on the right.  In this
-	  example, the samurai (agent 0) planned to dig apparent
-	  treasure at (6,6) but as the dog of the same team (agent 2)
-	  moves to the same cell, digging was not successful.
-	  Meanwhile, the apparent treasure at (2,7) is dug out by the
-	  opponent samurai (agent 1), resulting in the scores of 0 and
-	  8.
+	  An example is shown in the figure on the right.
 	</dd>
 	<dt><tt>-D &lt;<em>path</em>&gt;</tt></dt>
 	<dd>

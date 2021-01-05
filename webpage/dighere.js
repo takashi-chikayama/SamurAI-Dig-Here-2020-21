@@ -548,6 +548,7 @@ class GameState {
             newAgent.direction = plan%8;
             newAgent.action = plan;
           } else {
+	    newAgent.planned = -1;
 	    console.log("In step "+this.stepNumber +
 			"; agent "+ a +
 			"@(" + agent.at.x + "," + agent.at.y + ")");
@@ -559,6 +560,7 @@ class GameState {
       ////////////////////////
       // Check operabilities
       ////////////////////////
+
       // Check crossing move lines
       for (let a = 0; a != 4; a++) {
 	const agent = this.agents[a];

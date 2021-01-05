@@ -217,23 +217,22 @@ vector <StepLog> playGame
     stepLogs.emplace_back(step, plans, actions, next->agents, timeLeft, scores);
     if (stepSummary) {
       for (int p = 0; p != 4; p++) {
-	cerr << "Agent " << p
+	cerr << "Agent"
+	     << (config->agents[p].energized ? '*' : ' ')
+	     << p
 	     << "@(" << setw(coordWidth) << config->agents[p].x << ","
 	     << setw(coordWidth) << config->agents[p].y << ") ";
-	bool failure = plans[p] != actions[p];
-	int targetX = config->agents[p].x;
-	int targetY = config->agents[p].y;
-	if (!failure) {
-	  targetX += dx[plans[p]%8 + 1];
-	  targetY += dy[plans[p]%8 + 1];
-	}
+	int targetX = config->agents[p].x + dx[plans[p]%8 + 1];
+	int targetY = config->agents[p].y + dy[plans[p]%8 + 1];
+	bool failure = (plans[p] != actions[p]);
 	cerr << (plans[p] < 0 ? "stay" :
 		 plans[p] < 8 ? "move" :
 		 plans[p] < 16 ? "dig " : "plug")
 	     << " (" << setw(coordWidth) << targetX
 	     << "," << setw(coordWidth) << targetY << ")"
-	     << (plans[p] != actions[p] ? "X" : " ")
+	     << (failure ? "X" : " ")
 	     << " " << timeLeft[p] << " msec left"
+	     << (failure ? "; " + next->agents[p].reason : "")
 	     << endl;
       }
       cerr << "Scores are " << scores[0] << ":" << scores[1] << endl;
