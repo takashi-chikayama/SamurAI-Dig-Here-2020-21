@@ -570,8 +570,10 @@ class GameState {
 	    const target2 = targets[b];
 	    const agent2 = this.agents[b];
 	    if ((agent.at.x == agent2.at.x &&
+		 target.x == target2.x &&
 		 agent.at.y + target.y == agent2.at.y + target2.y) ||
 		(agent.at.y == agent2.at.y &&
+		 target.y == target2.y &&
 		 agent.at.x + target.x == agent2.at.x + target2.x)) {
 	      if (a >= 2 || b < 2) {
 		agent.action = -1;

@@ -124,8 +124,10 @@ Field::Field(const Field &prev, const int plans[],
 	  Cell &target_b = targets[b];
 	  // Check whether diagonal move lines cross
 	  if (((agt.y == agents[b].y &&
+		target.y == target_b.y &&
 		agt.x + target.x == agents[b].x + target_b.x) ||
 	       (agt.x == agents[b].x &&
+		target.x == target_b.x &&
 		agt.y + target.y == agents[b].y + target_b.y))) {
 	    if (a >= 2 || b < 2) {
 	      agt.reason = "Crossing move lines";
