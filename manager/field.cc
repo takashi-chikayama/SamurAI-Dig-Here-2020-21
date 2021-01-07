@@ -65,7 +65,7 @@ Field::Field(const Field &prev, const int plans[],
     Cell target = Cell(agt.x, agt.y);
     moveTo[a] = target;
     int plan = plans[a];
-    actions[a] = -1;		// Take a rest when plan is to stay or invalid
+    actions[a] = plan;
     agt.energized = true;
     if (plan != -1) {
       int nx = agt.x + dxs[plan%8];
@@ -74,36 +74,36 @@ Field::Field(const Field &prev, const int plans[],
       targets[a] = target;
       if (plan < -1 || 24 <= plan) {
 	agt.reason = "Plan out of range";
-	continue;
+	goto INVALID;
       }
       if (a < 2 && plan%2 != 0 && !prev.agents[a].energized) {
 	agt.reason = "Diagonal action without energy";
-	continue;
+	goto INVALID;
       }
       if (a >= 2 && 8 <= plan) {
 	agt.reason = "Dig or plug by a dog";
-	continue;
+	goto INVALID;
       }
       if (nx < 0 || size <= nx || ny < 0 || size <= ny) {
 	agt.reason = "Targetting outside of the field";
-	continue;
+	goto INVALID;
       }
       if (find(agents, agents+4, target) != agents+4) {
 	agt.reason = "Another agent in move target";
-	continue;
+	goto INVALID;
       }
       if (find(holes.begin(), holes.end(), target) != holes.end()) {
 	if (plan < 8) {
 	  agt.reason = "Moving to a cell with a hole";
-	  continue;
+	  goto INVALID;
 	}
 	if (plan < 16) {
 	  agt.reason = "Digging an already existing hole";
-	  continue;
+	  goto INVALID;
 	}
       } else if (24 <= plan) {
 	agt.reason = "Plugging a non-existent hole";
-	continue;
+	goto INVALID;
       }
     }
     actions[a] = plan;
@@ -111,6 +111,9 @@ Field::Field(const Field &prev, const int plans[],
       moveTo[a] = target;
     }
     agt.energized = (plan == -1);
+    continue;
+  INVALID:
+    actions[a] = -2;		// Mark as invalid
   }
   //////////////////////////////
   // Check for effectiveness of plans
@@ -120,7 +123,7 @@ Field::Field(const Field &prev, const int plans[],
     if (actions[a] >= 0) {
       Cell &target = targets[a];
       for (int b = 0; b != 4; b++) {
-	if (a != b && actions[b] >= 0) {
+	if (a != b && actions[b] != -2) {
 	  Cell &target_b = targets[b];
 	  // Check whether diagonal move lines cross
 	  if (((agt.y == agents[b].y &&
@@ -131,7 +134,7 @@ Field::Field(const Field &prev, const int plans[],
 		agt.y + target.y == agents[b].y + target_b.y))) {
 	    if (a >= 2 || b < 2) {
 	      agt.reason = "Crossing move lines";
-	      actions[a] = -1;
+	      actions[a] = -3;	// Mark as not viable
 	      moveTo[a] = Cell(agt.x, agt.y);
 	    }
 	  }
@@ -146,7 +149,7 @@ Field::Field(const Field &prev, const int plans[],
       for (int b = 0; b != 4; b++) {
 	if (a != b && moveTo[a] == moveTo[b]) {
 	  agt.reason = "Move collision";
-	  actions[a] = -1;
+	  actions[a] = -3;	// Mark as not viable
 	  break;
 	}
       }
@@ -159,15 +162,18 @@ Field::Field(const Field &prev, const int plans[],
       for (int b = 0; b != 4; b++) {
 	if (targets[a] == moveTo[b]) {
 	  agt.reason = "Dig target will be occupied";
-	  actions[a] = -1;
+	  actions[a] = -3;	// Mark as not viable
 	}
       }
     }
   }
   for (int a = 0; a != 4; a++) {
     Agent &agt = agents[a];
+    // Treat invalid and non-viable actions the same as taking a rest
     int action = actions[a];
-    if (0 <= action && action < 8) {
+    if (action < 0) {
+      actions[a] = -1;
+    } else if (0 <= action && action < 8) {
       Cell &destination = moveTo[a];
       agt.x = destination.x;
       agt.y = destination.y;
