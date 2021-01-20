@@ -628,30 +628,34 @@ class GameState {
 	if (agent.action >= 8) {
 	  if (agent.action < 16) {
             const dug = targets[a];
-            this.holes.push(dug);
-            this.hiddenGolds = this.hiddenGolds.filter(c => c != dug);
-            this.knownGolds = this.knownGolds.filter(c => c != dug);
-            this.dug.push(dug);
-            if (dug.gold != 0 && !dug.alreadyDug) {
-              this.goldRemaining -= dug.gold;
-	      const opp = (a+1)%2;
-              if (targets[opp] == dug) {
-		this.golds[0] += dug.gold/2;
-		this.golds[1] += dug.gold/2;
-		this.agents[0].obtained = dug.gold/2;
-		this.agents[1].obtained = dug.gold/2;
-		break;
-              } else {
-		this.golds[a] += dug.gold;
-		this.agents[a].obtained = dug.gold;
+	    if (!this.holes.includes(dug)) {
+              this.holes.push(dug);
+              this.hiddenGolds = this.hiddenGolds.filter(c => c != dug);
+              this.knownGolds = this.knownGolds.filter(c => c != dug);
+              this.dug.push(dug);
+              if (dug.gold != 0 && !dug.alreadyDug) {
+		this.goldRemaining -= dug.gold;
+		const opp = (a+1)%2;
+		if (targets[opp] == dug) {
+		  this.golds[0] += dug.gold/2;
+		  this.golds[1] += dug.gold/2;
+		  this.agents[0].obtained = dug.gold/2;
+		  this.agents[1].obtained = dug.gold/2;
+		  break;
+		} else {
+		  this.golds[a] += dug.gold;
+		  this.agents[a].obtained = dug.gold;
+		}
+		dug.alreadyDug = true;
 	      }
-	      dug.alreadyDug = true;
             }
           } else {
 	    // Process plugging
             const plugged = targets[a];
-            this.holes.splice(this.holes.indexOf(plugged), 1);
-            this.plugged.push(plugged);
+	    if (!this.plugged.includes(plugged)) {
+              this.holes.splice(this.holes.indexOf(plugged), 1);
+              this.plugged.push(plugged);
+	    }
 	  }
         }
       }
@@ -1130,10 +1134,12 @@ function redrawField(config) {
 
 function showHiddenGold() {
   hiddenGoldLayer.style.display = 'block';
+  agentLayer.style.opacity = 0.5;
 }
 
 function hideHiddenGold() {
   hiddenGoldLayer.style.display = 'none';
+  agentLayer.style.opacity = 1.0;
 }
 
 class Random {
