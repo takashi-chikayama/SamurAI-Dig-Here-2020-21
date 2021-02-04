@@ -82,7 +82,7 @@ A number of files containing game field setting, with the file name extension
 of .dighere can be found in [maps](maps) directory.
 
 The directory [preliminary-candidates](maps/preliminary-candidates) contains
-field settings candidates for the preliminary round,
+field settings candidates for both the preliminary and the final rounds,
 except that hidden treasures are not buried yet.
 
 ## Authors
