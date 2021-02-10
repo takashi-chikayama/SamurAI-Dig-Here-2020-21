@@ -464,7 +464,7 @@ class GameState {
 	  return "Plan " + plan + " out of range";
         if (targetPos === null)
 	  return "Target cell is out of the field";
-	if (role < 2 && plan%2 != 0 && prev.agents[role].planned >= -1) {
+	if (role < 2 && plan%2 != 0 && prev.agents[role].planned >= 0) {
 	  return "Diagonal move by a non-energized samurai";
 	}
         if (role >= 2 && plan >= 8) return "Dig or plug by a dog";
