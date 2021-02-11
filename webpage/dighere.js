@@ -636,6 +636,7 @@ class GameState {
               if (dug.gold != 0 && !dug.alreadyDug) {
 		this.goldRemaining -= dug.gold;
 		const opp = (a+1)%2;
+		dug.alreadyDug = true;
 		if (targets[opp] == dug) {
 		  this.golds[0] += dug.gold/2;
 		  this.golds[1] += dug.gold/2;
@@ -646,7 +647,6 @@ class GameState {
 		  this.golds[a] += dug.gold;
 		  this.agents[a].obtained = dug.gold;
 		}
-		dug.alreadyDug = true;
 	      }
             }
           } else {
