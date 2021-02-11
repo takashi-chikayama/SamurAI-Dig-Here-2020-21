@@ -101,7 +101,7 @@ Field::Field(const Field &prev, const int plans[],
 	  agt.reason = "Digging an already existing hole";
 	  goto INVALID;
 	}
-      } else if (24 <= plan) {
+      } else if (16 <= plan) {
 	agt.reason = "Plugging a non-existent hole";
 	goto INVALID;
       }
