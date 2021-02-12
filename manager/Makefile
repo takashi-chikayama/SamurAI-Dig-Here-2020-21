@@ -1,4 +1,9 @@
 CXXFLAGS= -g -Wall -std=c++14
+ifeq ($(shell uname -o),Cygwin)
+ifneq ($(shell ${CXX} --version | grep -i gcc),)
+CXXFLAGS= -g -Wall
+endif
+endif
 CXX= c++
 LDFLAGS= -lm -lpthread
 OBJECTS= main.o field.o gamelog.o playgame.o
