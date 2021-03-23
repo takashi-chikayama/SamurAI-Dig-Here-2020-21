@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>SamurAI Coding 2020-2021 World Finals</title>
+    <script src="tournament.js"></script>
+    <script src="teamNames.js"></script>
+    <script src="selfintro.js"></script>
+    <script src="logs.js"></script>
+    <script src="results.js"></script>
+    <style>
+      button { background: rgb(224,255,224); }
+      button:hover { background: rgb(255,224,224); }
+      .pdfControlButton { float: right; marginRight: 10px; }
+    </style>
+  </head>
+  <body style="background: #484; user-select: none; margin: 0px">
+    <div id="title area"
+	 style="text-align: center; background: #FF8; color: #44C;
+		font-weight: bold; vertical-align: middle;
+		position: fixed; top: 0px; width: 100%;">
+      <div>
+	SamurAI Coding 2020-2021 World Finals
+	<span style="float: right; font-size: 20px; margin-right: 10px">
+	  <button id="backButton" onclick="stepBack()">
+	    Back
+	  </button>
+	  <button id="nextButton" onclick="showNextMatch()">
+	    Next
+	  </button>
+	  <button id="doneButton" style="display: none">
+	    Done
+	  </button>
+	</span>
+      </div>
+      <div id="game info"
+	   style="background: #FF8; display: none; color: black;">
+      </div>
+      <div id="pdf control"
+	   style="background: #FF8; color: black; display: none;">
+      </div>
+    </div>
+    <div id="svg area">
+      <svg id="svg" height="100%" width="100%"> </svg>
+    </div>
+    <iframe id="game frame"
+	    style="position: fixed;
+		   width: 100%;
+		   border: 0px; display: none">
+    </iframe>
+    <video id="video"
+	   style="position: fixed;
+		  width: 100%;
+		  border: 0px; display: none">
+    </video>
+    <img id="intro area" width="100%"
+	 style="position: fixed; display: none">
+    <div id="logo area"
+	 style="height: 40px; text-align: center;">
+    </div>
+    <script>
+      start();
+    </script>
+  </body>
+</html>
